@@ -9,14 +9,14 @@ class LightningController(val color: ColorImplementation, properties: Properties
 
 
     init {
-        color.setColor(startColor)
+        color.setColor(startColor, 1000)
     }
 
     fun getCurrentColor(ctx: Context) {
         ctx.result(toHex(color.currentColor))
     }
 
-    fun setCurrentColor(ctx: Context) {
+    fun setColor(ctx: Context) {
         color.setColor(fromHex("#" + ctx.queryParam("color", "000000")!!))
     }
 

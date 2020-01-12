@@ -1,12 +1,13 @@
 package implementation
 
+import implementation.backend.ColorBackend
 import java.awt.Color
 import java.net.Socket
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.math.absoluteValue
 
-class ColorImplementation(properties: Properties) {
+class ColorImplementation(properties: Properties, private val backend: ColorBackend) {
 
     val pinRed = properties.getProperty("pins.red").toInt()
     val pinGreen = properties.getProperty("pins.green").toInt()
@@ -14,18 +15,20 @@ class ColorImplementation(properties: Properties) {
 
     val socket = Socket(properties.getProperty("pigpiod.ip"), properties.getProperty("pigpiod.port").toInt())
 
-    var currentColor = Color.BLACK
+    var currentColor: Color = Color.BLACK
 
+    @Synchronized
     fun setColor(color: Color) {
         if (color == currentColor) {
             return
         }
         currentColor = color
-        sendColor(pinRed, color.red)
-        sendColor(pinGreen, color.green)
-        sendColor(pinBlue, color.blue)
+        backend.send(pinRed, color.red)
+        backend.send(pinGreen, color.green)
+        backend.send(pinBlue, color.blue)
     }
 
+    @Synchronized
     fun setColor(color: Color, ms: Int) {
         if (color == currentColor) {
             return
@@ -44,21 +47,21 @@ class ColorImplementation(properties: Properties) {
         if (deltaRed != 0) {
             val redSleepTime = ((ms) / deltaRed.absoluteValue).toLong()
             sendColorUpdate(currentColor.red, deltaRed, redChangeRate, redSleepTime) {
-                sendColor(pinRed, it)
+                backend.send(pinRed, it)
             }
         }
 
         if (deltaGreen != 0) {
             val greenSleepTime = ((ms) / deltaGreen.absoluteValue).toLong()
             sendColorUpdate(currentColor.green, deltaGreen, greenChangeRate, greenSleepTime) {
-                sendColor(pinGreen, it)
+                backend.send(pinGreen, it)
             }
         }
 
         if (deltaBlue != 0) {
             val blueSleepTime = ((ms) / deltaBlue.absoluteValue).toLong()
             sendColorUpdate(currentColor.blue, deltaBlue, blueChangeRate, blueSleepTime) {
-                sendColor(pinBlue, it)
+                backend.send(pinBlue, it)
             }
         }
 
@@ -76,38 +79,4 @@ class ColorImplementation(properties: Properties) {
             }
         }.start()
     }
-
-    @Synchronized
-    private fun sendColor(pin: Int, value: Int) {
-        socket.getOutputStream().write(createPacketBuffer(pin, value).array())
-        socket.getInputStream().read(ByteArray(16))
-    }
-
-    private fun createPacketBuffer(pin: Int, value: Int): ByteBuffer {
-        val buffer = ByteBuffer.allocate(16)
-
-        buffer.put(intToUInt32T(5)) // 5 = PIGPIOD CMD PWM
-        buffer.put(intToUInt32T(pin))
-        buffer.put(intToUInt32T(value))
-        buffer.put(intToUInt32T(0))
-
-        return buffer
-    }
-
-    private fun intToUInt32T(value: Int): ByteArray {
-        val bx = ByteArray(4)
-
-        val newValue = value.toLong() and 0xFFFFFFFF;
-
-        if (newValue >= 0) {
-            bx[0] = (newValue and 0xff).toByte()
-            bx[1] = (newValue.shr(8) and 0xff).toByte()
-            bx[2] = (newValue.shr(16) and 0xff).toByte()
-            bx[3] = (newValue.shr(24) and 0xff).toByte()
-        }
-
-        return bx;
-    }
-
-
 }
