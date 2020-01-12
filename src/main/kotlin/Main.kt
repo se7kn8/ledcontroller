@@ -1,9 +1,10 @@
 import implementation.ColorImplementation
+import implementation.backend.PigpiodBackend
+import implementation.mode.RainbowMode
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
 import io.javalin.http.Context
-import java.awt.Color
 import java.io.*
 import java.util.*
 
@@ -17,8 +18,8 @@ val DEFAULT_PROPERTIES = Properties().apply {
     setProperty("start_color", "#ff1e00")
 }
 
-fun main() {
-    val file = File("controller.properties");
+fun main(args: Array<String>) {
+    val file = File(args[0]);
     println("Properties file: ${file.absoluteFile}")
 
     val properties = Properties(DEFAULT_PROPERTIES)
@@ -28,31 +29,51 @@ fun main() {
     } else {
         DEFAULT_PROPERTIES.store(OutputStreamWriter(FileOutputStream(file)), "Lighting controller properties")
     }
-    val color = ColorImplementation(properties)
 
-    val controller = LightningController(color, properties)
+    val color = ColorImplementation(properties, PigpiodBackend(properties))
+
+    val colorController = LightningController(color, properties)
+    val modeController = ModeController(color, properties)
+
+    modeController.addMode(RainbowMode())
 
     Javalin.create {
         it.registerPlugin(RouteOverviewPlugin("routes"))
         it.contextPath = "/control"
+        it.logIfServerNotStarted = false
     }.routes {
         path("lighting") {
-            get(controller::getCurrentColor)
-            post(controller::setCurrentColor)
+            get(colorController::getCurrentColor)
+            post(colorController::setColor)
             path("reset") {
-                post(controller::reset)
+                post(colorController::reset)
             }
             path("fade") {
-                post(controller::fadeColor)
+                post(colorController::fadeColor)
+            }
+            path("mode"){
+                get(modeController::getCurrentMode)
+                post(modeController::setMode)
+                path("start"){
+                    post(modeController::start)
+                }
+                path("stop"){
+                    post(modeController::stop)
+                }
+                path("list"){
+                    get(modeController::getModes)
+                }
             }
         }
         get(Global::getInfo)
+    }.error(404) {
+        it.result("404 Not found\nContext-Path is /control")
     }.start(properties.getProperty("port").toInt())
 }
 
 object Global {
 
     fun getInfo(ctx: Context) {
-
+        ctx.result("LedController by se7kn8 (https://github.com/SE7-KN8/ledcontroller)\nAvailable routes are under /control/routes")
     }
 }
