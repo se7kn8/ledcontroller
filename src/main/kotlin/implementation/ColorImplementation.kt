@@ -4,6 +4,7 @@ import java.awt.Color
 import java.net.Socket
 import java.nio.ByteBuffer
 import java.util.*
+import kotlin.math.absoluteValue
 
 class ColorImplementation(properties: Properties) {
 
@@ -25,40 +26,55 @@ class ColorImplementation(properties: Properties) {
         sendColor(pinBlue, color.blue)
     }
 
-    // Time between color updates in ms
-    val INTERVAL_SIZE = 100
-
     fun setColor(color: Color, ms: Int) {
         if (color == currentColor) {
             return
         }
-        val steps = ms / INTERVAL_SIZE
 
-        val redDiff = color.red - currentColor.red
-        val greenDiff = color.green - currentColor.green
-        val blueDiff = color.blue - currentColor.blue
+        val deltaRed = color.red - currentColor.red
+        val deltaGreen = color.green - currentColor.green
+        val deltaBlue = color.blue - currentColor.blue
 
-        val redPerUpdate = redDiff / steps
-        val greenPerUpdate = greenDiff / steps
-        val bluePerUpdate = blueDiff / steps
+        val redChangeRate = if (deltaRed < 0) -1 else 1
+        val greenChangeRate = if (deltaGreen < 0) -1 else 1
+        val blueChangeRate = if (deltaBlue < 0) -1 else 1
 
-        var deltaColor = currentColor
 
-        if (steps > 1) {
-            Thread {
-                for (i in 0..steps) {
-                    deltaColor = Color(deltaColor.red + redPerUpdate, deltaColor.green + greenPerUpdate, deltaColor.blue + bluePerUpdate)
-                    println(deltaColor)
-                    Thread.sleep(INTERVAL_SIZE.toLong())
-                    setColor(deltaColor)
-                }
-                setColor(color)
-            }.start()
-        } else {
-            setColor(color)
+
+        if (deltaRed != 0) {
+            val redSleepTime = ((ms) / deltaRed.absoluteValue).toLong()
+            sendColorUpdate(currentColor.red, deltaRed, redChangeRate, redSleepTime) {
+                sendColor(pinRed, it)
+            }
         }
 
+        if (deltaGreen != 0) {
+            val greenSleepTime = ((ms) / deltaGreen.absoluteValue).toLong()
+            sendColorUpdate(currentColor.green, deltaGreen, greenChangeRate, greenSleepTime) {
+                sendColor(pinGreen, it)
+            }
+        }
 
+        if (deltaBlue != 0) {
+            val blueSleepTime = ((ms) / deltaBlue.absoluteValue).toLong()
+            sendColorUpdate(currentColor.blue, deltaBlue, blueChangeRate, blueSleepTime) {
+                sendColor(pinBlue, it)
+            }
+        }
+
+        currentColor = color
+
+    }
+
+    private fun sendColorUpdate(startValue: Int, delta: Int, changeRate: Int, time: Long, sendFunc: (Int) -> Unit) {
+        var value = startValue
+        Thread {
+            for (i in 1..delta.absoluteValue) {
+                sendFunc(value)
+                value += changeRate
+                Thread.sleep(time)
+            }
+        }.start()
     }
 
     @Synchronized
