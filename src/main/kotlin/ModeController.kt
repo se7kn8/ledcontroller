@@ -1,13 +1,14 @@
 import implementation.ColorImplementation
 import implementation.mode.Mode
 import io.javalin.http.Context
+import java.lang.Exception
 import java.util.*
 import kotlin.collections.HashMap
 
 class ModeController(private val color: ColorImplementation, properties: Properties) {
 
     val NOP_MODE = object : Mode {
-        override fun start(color: ColorImplementation, multiplier: Int) {
+        override fun start(color: ColorImplementation, multiplier: Float) {
             // NOP
         }
 
@@ -43,8 +44,9 @@ class ModeController(private val color: ColorImplementation, properties: Propert
     }
 
     fun start(ctx: Context) {
+        val multiplier = ctx.queryParam("multiplier", "1.0")!!.toFloat()
         Thread {
-            currentMode.start(color, 1)
+            currentMode.start(color, multiplier)
         }.start()
     }
 

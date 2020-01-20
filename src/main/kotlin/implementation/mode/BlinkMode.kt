@@ -7,15 +7,16 @@ class BlinkMode : Mode {
 
     private var running = true
 
-    override fun start(color: ColorImplementation, multiplier: Int) {
+    override fun start(color: ColorImplementation, multiplier: Float) {
         running = true
+        val time = (1000f * multiplier).toLong()
         while (running) {
             color.setColor(Color.RED)
-            Thread.sleep(1000)
+            Thread.sleep(time)
             color.setColor(Color.GREEN)
-            Thread.sleep(1000)
+            Thread.sleep(time)
             color.setColor(Color.BLUE)
-            Thread.sleep(1000)
+            Thread.sleep(time)
         }
     }
 
