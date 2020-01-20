@@ -5,7 +5,7 @@ import implementation.ColorImplementation
 interface Mode {
 
     // Will be called from another thread
-    fun start(color: ColorImplementation)
+    fun start(color: ColorImplementation, multiplier: Int)
 
 
     // Will be call from main thread

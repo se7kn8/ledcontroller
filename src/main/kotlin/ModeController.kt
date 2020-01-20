@@ -7,7 +7,7 @@ import kotlin.collections.HashMap
 class ModeController(private val color: ColorImplementation, properties: Properties) {
 
     val NOP_MODE = object : Mode {
-        override fun start(color: ColorImplementation) {
+        override fun start(color: ColorImplementation, multiplier: Int) {
             // NOP
         }
 
@@ -44,7 +44,7 @@ class ModeController(private val color: ColorImplementation, properties: Propert
 
     fun start(ctx: Context) {
         Thread {
-            currentMode.start(color)
+            currentMode.start(color, 1)
         }.start()
     }
 

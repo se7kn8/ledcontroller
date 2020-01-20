@@ -1,5 +1,6 @@
 import implementation.ColorImplementation
 import implementation.backend.PigpiodBackend
+import implementation.mode.BlinkMode
 import implementation.mode.RainbowMode
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
@@ -36,6 +37,7 @@ fun main(args: Array<String>) {
     val modeController = ModeController(color, properties)
 
     modeController.addMode(RainbowMode())
+    modeController.addMode(BlinkMode())
 
     Javalin.create {
         it.registerPlugin(RouteOverviewPlugin("routes"))

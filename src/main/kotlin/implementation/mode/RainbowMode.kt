@@ -8,7 +8,7 @@ class RainbowMode : Mode {
     private var running = true
     private var latestColor: Color = Color.BLACK
 
-    override fun start(color: ColorImplementation) {
+    override fun start(color: ColorImplementation, multiplier: Int) {
         running = true
         latestColor = color.currentColor
         var value = 0.0f
