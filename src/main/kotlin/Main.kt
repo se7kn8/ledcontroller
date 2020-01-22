@@ -50,9 +50,6 @@ fun main(args: Array<String>) {
             path("reset") {
                 post(colorController::reset)
             }
-            path("fade") {
-                post(colorController::fadeColor)
-            }
             path("mode"){
                 get(modeController::getCurrentMode)
                 post(modeController::setMode)

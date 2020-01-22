@@ -17,11 +17,10 @@ class LightningController(val color: ColorImplementation, properties: Properties
     }
 
     fun setColor(ctx: Context) {
-        color.setColor(fromHex("#" + ctx.queryParam("color", "000000")!!))
-    }
-
-    fun fadeColor(ctx: Context) {
-        color.setColor(fromHex("#" + ctx.queryParam("color", "000000")!!), ctx.queryParam("time")!!.toInt())
+        if (ctx.queryParam("time", "-1")!!.toInt() > 0) {
+            color.setColor(fromHex("#" + ctx.queryParam("color", "000000")!!.replace("#", "")), ctx.queryParam("time")!!.toInt())
+        }
+        color.setColor(fromHex("#" + ctx.queryParam("color", "000000")!!.replace("#","")))
     }
 
     fun reset(ctx: Context) {
