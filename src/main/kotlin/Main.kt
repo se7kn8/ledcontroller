@@ -6,6 +6,10 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
 import io.javalin.http.Context
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.config.Configurator
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory
 import java.io.*
 import java.util.*
 
@@ -19,16 +23,21 @@ val DEFAULT_PROPERTIES = Properties().apply {
     setProperty("start_color", "#ff1e00")
 }
 
+
 fun main(args: Array<String>) {
-    val file = File(args[0]);
-    println("Properties file: ${file.absoluteFile}")
+    val logger = LogManager.getLogger()
+
+    val file = File(args[0])
+    logger.info("Properties file: ${file.absoluteFile}")
 
     val properties = Properties(DEFAULT_PROPERTIES)
 
     if (file.exists()) {
         properties.load(InputStreamReader(FileInputStream(file)))
     } else {
-        DEFAULT_PROPERTIES.store(OutputStreamWriter(FileOutputStream(file)), "Lighting controller properties")
+        DEFAULT_PROPERTIES.store(OutputStreamWriter(FileOutputStream(file)), "Lighting controller properties. PINs are broadcom GPIO numbers")
+        logger.warn("Program will exit. You have to edit the properties files for you needs!")
+        return
     }
 
     val color = ColorImplementation(properties, PigpiodBackend(properties))
@@ -50,16 +59,16 @@ fun main(args: Array<String>) {
             path("reset") {
                 post(colorController::reset)
             }
-            path("mode"){
+            path("mode") {
                 get(modeController::getCurrentMode)
                 post(modeController::setMode)
-                path("start"){
+                path("start") {
                     post(modeController::start)
                 }
-                path("stop"){
+                path("stop") {
                     post(modeController::stop)
                 }
-                path("list"){
+                path("list") {
                     get(modeController::getModes)
                 }
             }
@@ -71,7 +80,6 @@ fun main(args: Array<String>) {
 }
 
 object Global {
-
     fun getInfo(ctx: Context) {
         ctx.result("LedController by se7kn8 (https://github.com/SE7-KN8/ledcontroller)\nAvailable routes are under /control/routes")
     }

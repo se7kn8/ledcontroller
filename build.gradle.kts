@@ -16,6 +16,9 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.slf4j:slf4j-simple:1.8.0-beta4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.13.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.13.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.13.0")
     implementation("io.javalin:javalin:3.7.0")
 }

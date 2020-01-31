@@ -1,27 +1,24 @@
 package implementation.mode
 
 import implementation.ColorImplementation
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import java.awt.Color
+import kotlin.coroutines.coroutineContext
 
 class BlinkMode : Mode {
 
-    private var running = true
 
-    override fun start(color: ColorImplementation, multiplier: Float) {
-        running = true
+    override suspend fun start(color: ColorImplementation, multiplier: Float) {
         val time = (1000f * multiplier).toLong()
-        while (running) {
+        while (coroutineContext.isActive) {
             color.setColor(Color.RED)
-            Thread.sleep(time)
+            delay(time)
             color.setColor(Color.GREEN)
-            Thread.sleep(time)
+            delay(time)
             color.setColor(Color.BLUE)
-            Thread.sleep(time)
+            delay(time)
         }
-    }
-
-    override fun stop() {
-        running = false
     }
 
     override fun getName(): String {
