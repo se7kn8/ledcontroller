@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.github.se7_kn8"
-version = "1.2-SNAPSHOT"
+version = "1.3-SNAPSHOT"
 
 application {
     mainClassName = "MainKt"
