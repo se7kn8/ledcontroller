@@ -25,6 +25,7 @@ class LightningController(val color: ColorImplementation, properties: Properties
 
     fun reset(ctx: Context) {
         color.setColor(startColor)
+        ctx.result(toHex(startColor))
     }
 
 
