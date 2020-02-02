@@ -52,6 +52,7 @@ fun main(args: Array<String>) {
         it.registerPlugin(RouteOverviewPlugin("routes"))
         it.contextPath = "/control"
         it.logIfServerNotStarted = false
+        it.showJavalinBanner = false
     }.routes {
         path("lighting") {
             get(colorController::getCurrentColor)
@@ -73,6 +74,9 @@ fun main(args: Array<String>) {
                 }
             }
         }
+        path("version") {
+            get(Global::getVersion)
+        }
         get(Global::getInfo)
     }.error(404) {
         it.result("404 Not found\nContext-Path is /control")
@@ -82,5 +86,10 @@ fun main(args: Array<String>) {
 object Global {
     fun getInfo(ctx: Context) {
         ctx.result("LedController by se7kn8 (https://github.com/SE7-KN8/ledcontroller)\nAvailable routes are under /control/routes")
+    }
+
+    fun getVersion(ctx: Context) {
+        val version = "1.3-snapshot"
+        ctx.result(version)
     }
 }

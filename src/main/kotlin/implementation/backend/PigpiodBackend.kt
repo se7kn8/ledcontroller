@@ -1,12 +1,23 @@
 package implementation.backend
 
+import org.apache.logging.log4j.LogManager
 import java.net.Socket
 import java.nio.ByteBuffer
 import java.util.*
 
-class PigpiodBackend(properties: Properties): ColorBackend {
+class PigpiodBackend(properties: Properties) : ColorBackend {
 
-    private val socket = Socket(properties.getProperty("pigpiod.ip"), properties.getProperty("pigpiod.port").toInt())
+    private val logger = LogManager.getLogger()
+
+    private val socket: Socket
+
+    init {
+        logger.info("Using PigpiodBackend")
+        val ip = properties.getProperty("pigpiod.ip")
+        val port = properties.getProperty("pigpiod.port").toInt()
+        logger.info("Connecting to pigpiod server at $ip:$port")
+        socket = Socket(ip, port)
+    }
 
     @Synchronized
     override fun send(pin: Int, value: Int) {
