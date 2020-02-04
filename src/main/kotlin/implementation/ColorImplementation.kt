@@ -2,18 +2,15 @@ package implementation
 
 import implementation.backend.ColorBackend
 import java.awt.Color
-import java.net.Socket
-import java.nio.ByteBuffer
 import java.util.*
+import java.util.concurrent.Executors
 import kotlin.math.absoluteValue
 
 class ColorImplementation(properties: Properties, private val backend: ColorBackend) {
 
-    val pinRed = properties.getProperty("pins.red").toInt()
-    val pinGreen = properties.getProperty("pins.green").toInt()
-    val pinBlue = properties.getProperty("pins.blue").toInt()
-
-    val socket = Socket(properties.getProperty("pigpiod.ip"), properties.getProperty("pigpiod.port").toInt())
+    private val pinRed = properties.getProperty("pins.red").toInt()
+    private val pinGreen = properties.getProperty("pins.green").toInt()
+    private val pinBlue = properties.getProperty("pins.blue").toInt()
 
     var currentColor: Color = Color.BLACK
 
@@ -69,14 +66,16 @@ class ColorImplementation(properties: Properties, private val backend: ColorBack
 
     }
 
+    private val executor = Executors.newCachedThreadPool()
+
     private fun sendColorUpdate(startValue: Int, delta: Int, changeRate: Int, time: Long, sendFunc: (Int) -> Unit) {
         var value = startValue
-        Thread {
+        executor.execute {
             for (i in 1..delta.absoluteValue) {
                 sendFunc(value)
                 value += changeRate
                 Thread.sleep(time)
             }
-        }.start()
+        }
     }
 }

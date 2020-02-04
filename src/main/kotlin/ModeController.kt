@@ -22,7 +22,6 @@ class ModeController(private val color: ColorImplementation, properties: Propert
         override fun getName(): String {
             return "NOP"
         }
-
     }
 
 
