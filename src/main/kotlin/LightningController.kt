@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager
 import java.awt.Color
 import java.util.*
 
-class LightningController(private val color: ColorImplementation, properties: Properties) {
+class LightningController(private val color: ColorImplementation, properties: PropertiesHandler) {
 
     private val NOP_MODE = object : Mode {
         override suspend fun start(color: ColorImplementation, multiplier: Float) {
@@ -20,7 +20,7 @@ class LightningController(private val color: ColorImplementation, properties: Pr
         }
     }
 
-    private val startColor = fromHex(properties.getProperty("start_color"))
+    private val startColor = fromHex(properties.properties.getProperty("start_color"))
 
     private var job: Job? = null
 

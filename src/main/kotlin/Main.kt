@@ -8,18 +8,6 @@ import io.javalin.core.util.RouteOverviewPlugin
 import io.javalin.http.Context
 import org.apache.logging.log4j.LogManager
 import java.io.*
-import java.util.*
-
-val DEFAULT_PROPERTIES = Properties().apply {
-    setProperty("pins.red", "0")
-    setProperty("pins.green", "0")
-    setProperty("pins.blue", "0")
-    setProperty("port", "8080")
-    setProperty("pigpiod.port", "8888")
-    setProperty("pigpiod.ip", "localhost")
-    setProperty("start_color", "#ff1e00")
-}
-
 
 fun main(args: Array<String>) {
     val logger = LogManager.getLogger()
@@ -27,19 +15,19 @@ fun main(args: Array<String>) {
     val file = File(args[0])
     logger.info("Properties file: ${file.absoluteFile}")
 
-    val properties = Properties(DEFAULT_PROPERTIES)
+    val propertiesHandler = PropertiesHandler(file)
 
     if (file.exists()) {
-        properties.load(InputStreamReader(FileInputStream(file)))
+        propertiesHandler.loadProperties()
     } else {
-        DEFAULT_PROPERTIES.store(OutputStreamWriter(FileOutputStream(file)), "Lighting controller properties. PINs are broadcom GPIO numbers")
+        propertiesHandler.saveDefaultProperties()
         logger.warn("Program will exit. You have to edit the properties files for you needs!")
         return
     }
 
-    val color = ColorImplementation(properties, PigpiodBackend(properties))
+    val color = ColorImplementation(propertiesHandler, PigpiodBackend(propertiesHandler))
 
-    val colorController = LightningController(color, properties)
+    val colorController = LightningController(color, propertiesHandler)
 
     colorController.addMode(RainbowMode())
     colorController.addMode(BlinkMode())
@@ -76,7 +64,7 @@ fun main(args: Array<String>) {
         get(Global::getInfo)
     }.error(404) {
         it.result("404 Not found\nContext-Path is /control")
-    }.start(properties.getProperty("port").toInt())
+    }.start(propertiesHandler.properties.getProperty("port").toInt())
 }
 
 object Global {
