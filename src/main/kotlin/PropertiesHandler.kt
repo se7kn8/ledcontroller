@@ -18,15 +18,15 @@ class PropertiesHandler(private val file: File) {
 
     val properties = Properties(DEFAULT_PROPERTIES)
 
-    fun loadProperties() {
+    fun load() {
         properties.load(InputStreamReader(FileInputStream(file)))
     }
 
-    fun saveProperties() {
+    fun save() {
         properties.store(OutputStreamWriter(FileOutputStream(file)),"Lighting controller properties. PINs are broadcom GPIO numbers")
     }
 
-    fun saveDefaultProperties() {
+    fun saveDefault() {
         logger.info("Saving default properties to $file")
         DEFAULT_PROPERTIES.store(OutputStreamWriter(FileOutputStream(file)), "Lighting controller properties. PINs are broadcom GPIO numbers")
     }

@@ -18,9 +18,9 @@ fun main(args: Array<String>) {
     val propertiesHandler = PropertiesHandler(file)
 
     if (file.exists()) {
-        propertiesHandler.loadProperties()
+        propertiesHandler.load()
     } else {
-        propertiesHandler.saveDefaultProperties()
+        propertiesHandler.saveDefault()
         logger.warn("Program will exit. You have to edit the properties files for you needs!")
         return
     }
@@ -41,6 +41,10 @@ fun main(args: Array<String>) {
         path("lighting") {
             get(colorController::getCurrentColor)
             post(colorController::setColor)
+            path("default") {
+                get(colorController::getDefaultColor)
+                post(colorController::setDefaultColor)
+            }
             path("reset") {
                 post(colorController::reset)
             }

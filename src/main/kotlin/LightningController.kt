@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager
 import java.awt.Color
 import java.util.*
 
-class LightningController(private val color: ColorImplementation, properties: PropertiesHandler) {
+class LightningController(private val color: ColorImplementation, private val properties: PropertiesHandler) {
 
     private val NOP_MODE = object : Mode {
         override suspend fun start(color: ColorImplementation, multiplier: Float) {
@@ -16,17 +16,19 @@ class LightningController(private val color: ColorImplementation, properties: Pr
         }
 
         override fun getName(): String {
-            return "NOP"
+            return "None"
         }
     }
 
-    private val startColor = fromHex(properties.properties.getProperty("start_color"))
+    private var startColor = fromHex(properties.properties.getProperty("start_color"))
 
     private var job: Job? = null
 
     private var currentMode: Mode = NOP_MODE
 
-    private val modes = HashMap<String, Mode>()
+    private val modes = HashMap<String, Mode>().apply {
+        put("None", NOP_MODE)
+    }
 
     private val logger = LogManager.getLogger()
 
@@ -84,6 +86,17 @@ class LightningController(private val color: ColorImplementation, properties: Pr
 
     fun stop(ctx: Context) {
         stopCurrentMode()
+    }
+
+    fun getDefaultColor(ctx: Context) {
+        ctx.result(toHex(startColor))
+    }
+
+    fun setDefaultColor(ctx: Context) {
+        startColor = fromHex("#" + ctx.queryParam("color", "000000")!!.replace("#", ""))
+        logger.info("Set default color to ${toHex(startColor)}")
+        properties.properties["start_color"] = toHex(startColor)
+        properties.save()
     }
 
     private fun fromHex(hexString: String): Color {
