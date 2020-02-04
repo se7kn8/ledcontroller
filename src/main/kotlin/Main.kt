@@ -6,10 +6,7 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
 import io.javalin.http.Context
-import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core.config.Configurator
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory
 import java.io.*
 import java.util.*
 
@@ -43,10 +40,9 @@ fun main(args: Array<String>) {
     val color = ColorImplementation(properties, PigpiodBackend(properties))
 
     val colorController = LightningController(color, properties)
-    val modeController = ModeController(color, properties)
 
-    modeController.addMode(RainbowMode())
-    modeController.addMode(BlinkMode())
+    colorController.addMode(RainbowMode())
+    colorController.addMode(BlinkMode())
 
     Javalin.create {
         it.registerPlugin(RouteOverviewPlugin("routes"))
@@ -61,16 +57,16 @@ fun main(args: Array<String>) {
                 post(colorController::reset)
             }
             path("mode") {
-                get(modeController::getCurrentMode)
-                post(modeController::setMode)
+                get(colorController::getCurrentMode)
+                post(colorController::setMode)
                 path("start") {
-                    post(modeController::start)
+                    post(colorController::start)
                 }
                 path("stop") {
-                    post(modeController::stop)
+                    post(colorController::stop)
                 }
                 path("list") {
-                    get(modeController::getModes)
+                    get(colorController::getModes)
                 }
             }
         }
