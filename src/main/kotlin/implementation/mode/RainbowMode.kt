@@ -21,7 +21,7 @@ class RainbowMode : Mode {
             while (coroutineContext.isActive) {
                 value += 0.001f
                 color.setColor(Color.getHSBColor(value, 1f, 1f))
-                delay((50f * multiplier).toLong())
+                delay((10f * multiplier).toLong())
             }
             color.setColor(latestColor, 1000)
         } finally {
