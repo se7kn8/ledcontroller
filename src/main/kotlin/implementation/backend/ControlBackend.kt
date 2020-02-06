@@ -1,8 +1,10 @@
 package implementation.backend
 
-interface ColorBackend {
+interface ControlBackend {
 
     fun send(pin: Int, value: Int)
+
+    fun send(pin: Int, state: Boolean)
 
     fun close()
 

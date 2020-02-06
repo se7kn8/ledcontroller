@@ -1,13 +1,12 @@
 package implementation
 
 import PropertiesHandler
-import implementation.backend.ColorBackend
+import implementation.backend.ControlBackend
 import java.awt.Color
-import java.util.*
 import java.util.concurrent.Executors
 import kotlin.math.absoluteValue
 
-class ColorImplementation(properties: PropertiesHandler, private val backend: ColorBackend) {
+class ColorImplementation(properties: PropertiesHandler, private val backend: ControlBackend) {
 
     private val pinRed = properties.properties.getProperty("pins.red").toInt()
     private val pinGreen = properties.properties.getProperty("pins.green").toInt()

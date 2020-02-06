@@ -4,9 +4,8 @@ import PropertiesHandler
 import org.apache.logging.log4j.LogManager
 import java.net.Socket
 import java.nio.ByteBuffer
-import java.util.*
 
-class PigpiodBackend(properties: PropertiesHandler) : ColorBackend {
+class PigpiodBackend(properties: PropertiesHandler) : ControlBackend {
 
     private val logger = LogManager.getLogger()
 
@@ -22,7 +21,13 @@ class PigpiodBackend(properties: PropertiesHandler) : ColorBackend {
 
     @Synchronized
     override fun send(pin: Int, value: Int) {
-        socket.getOutputStream().write(createPacketBuffer(pin, value).array())
+        socket.getOutputStream().write(createPWMPacket(pin, value))
+        socket.getInputStream().read(ByteArray(16))
+    }
+
+    @Synchronized
+    override fun send(pin: Int, state: Boolean) {
+        socket.getOutputStream().write(createWritePacket(pin, state))
         socket.getInputStream().read(ByteArray(16))
     }
 
@@ -30,13 +35,17 @@ class PigpiodBackend(properties: PropertiesHandler) : ColorBackend {
         socket.close()
     }
 
-    private fun createPacketBuffer(pin: Int, value: Int): ByteBuffer {
+    private fun createWritePacket(pin: Int, state: Boolean) = createPacket(4, pin, if (state) 1 else 0).array()
+
+    private fun createPWMPacket(pin: Int, value: Int) = createPacket(5, pin, value).array()
+
+    private fun createPacket(cmd: Int, p1: Int = 0, p2: Int = 0, p3: Int = 0): ByteBuffer {
         val buffer = ByteBuffer.allocate(16)
 
-        buffer.put(intToUInt32T(5)) // 5 = PIGPIOD CMD PWM
-        buffer.put(intToUInt32T(pin))
-        buffer.put(intToUInt32T(value))
-        buffer.put(intToUInt32T(0))
+        buffer.put(intToUInt32T(cmd))
+        buffer.put(intToUInt32T(p1))
+        buffer.put(intToUInt32T(p2))
+        buffer.put(intToUInt32T(p3))
 
         return buffer
     }
@@ -44,7 +53,7 @@ class PigpiodBackend(properties: PropertiesHandler) : ColorBackend {
     private fun intToUInt32T(value: Int): ByteArray {
         val bx = ByteArray(4)
 
-        val newValue = value.toLong() and 0xFFFFFFFF;
+        val newValue = value.toLong() and 0xFFFFFFFF
 
         if (newValue >= 0) {
             bx[0] = (newValue and 0xff).toByte()
@@ -53,7 +62,7 @@ class PigpiodBackend(properties: PropertiesHandler) : ColorBackend {
             bx[3] = (newValue.shr(24) and 0xff).toByte()
         }
 
-        return bx;
+        return bx
     }
 
 }

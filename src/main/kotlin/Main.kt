@@ -25,12 +25,14 @@ fun main(args: Array<String>) {
         return
     }
 
-    val color = ColorImplementation(propertiesHandler, PigpiodBackend(propertiesHandler))
+    val backend = PigpiodBackend(propertiesHandler)
 
-    val colorController = LightningController(color, propertiesHandler)
+    val colorController = LightningController(ColorImplementation(propertiesHandler, backend), propertiesHandler).apply {
+        addMode(RainbowMode())
+        addMode(BlinkMode())
+    }
 
-    colorController.addMode(RainbowMode())
-    colorController.addMode(BlinkMode())
+    val gpioController = GPIOController(backend)
 
     Javalin.create {
         it.registerPlugin(RouteOverviewPlugin("routes"))
@@ -60,6 +62,11 @@ fun main(args: Array<String>) {
                 path("list") {
                     get(colorController::getModes)
                 }
+            }
+        }
+        path("gpio") {
+            path("write") {
+                post(gpioController::write)
             }
         }
         path("version") {
