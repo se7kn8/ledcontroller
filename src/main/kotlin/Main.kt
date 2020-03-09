@@ -33,6 +33,7 @@ fun main(args: Array<String>) {
     }
 
     val gpioController = GPIOController(backend)
+    val statsController = StatsController()
 
     Javalin.create {
         it.registerPlugin(RouteOverviewPlugin("routes"))
@@ -69,12 +70,34 @@ fun main(args: Array<String>) {
                 post(gpioController::write)
             }
         }
+        path("stats") {
+            path("remove") {
+                post(statsController::remove)
+            }
+            path("get") {
+                path("latest") {
+                    get(statsController::getLatest)
+                }
+                path("all") {
+                    get(statsController::getAll)
+                }
+
+            }
+            path("update") {
+                post(statsController::update)
+            }
+            path("list") {
+                get(statsController::list)
+            }
+        }
         path("version") {
             get(Global::getVersion)
         }
         get(Global::getInfo)
     }.error(404) {
-        it.result("404 Not found\nContext-Path is /control")
+        if (it.resultString() == null) {
+            it.result("404 Not found\nContext-Path is /control")
+        }
     }.start(propertiesHandler.properties.getProperty("port").toInt())
 }
 

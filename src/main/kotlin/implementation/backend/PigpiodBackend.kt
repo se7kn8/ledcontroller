@@ -21,8 +21,18 @@ class PigpiodBackend(properties: PropertiesHandler) : ControlBackend {
 
     @Synchronized
     override fun send(pin: Int, value: Int) {
-        socket.getOutputStream().write(createPWMPacket(pin, value))
-        socket.getInputStream().read(ByteArray(16))
+        when (value) {
+            255 -> {
+                send(pin, true)
+            }
+            0 -> {
+                send(pin, false)
+            }
+            else -> {
+                socket.getOutputStream().write(createPWMPacket(pin, value))
+                socket.getInputStream().read(ByteArray(16))
+            }
+        }
     }
 
     @Synchronized

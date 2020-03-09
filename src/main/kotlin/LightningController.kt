@@ -32,7 +32,6 @@ class LightningController(private val color: ColorImplementation, private val pr
 
     private val logger = LogManager.getLogger()
 
-
     init {
         color.setColor(startColor, 1000)
     }
