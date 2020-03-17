@@ -14,6 +14,7 @@ class PropertiesHandler(private val file: File) {
         setProperty("pigpiod.port", "8888")
         setProperty("pigpiod.ip", "localhost")
         setProperty("start_color", "#ff1e00")
+        setProperty("stats_save_directory", "stats/")
     }
 
     val properties = Properties(DEFAULT_PROPERTIES)

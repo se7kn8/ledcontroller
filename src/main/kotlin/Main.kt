@@ -1,4 +1,5 @@
 import implementation.ColorImplementation
+import implementation.StatsImplementation
 import implementation.backend.PigpiodBackend
 import implementation.mode.BlinkMode
 import implementation.mode.RainbowMode
@@ -33,7 +34,8 @@ fun main(args: Array<String>) {
     }
 
     val gpioController = GPIOController(backend)
-    val statsController = StatsController()
+
+    val statsController = StatsController(StatsImplementation(propertiesHandler))
 
     Javalin.create {
         it.registerPlugin(RouteOverviewPlugin("routes"))
