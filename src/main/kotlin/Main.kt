@@ -110,7 +110,7 @@ object Global {
     }
 
     fun getVersion(ctx: Context) {
-        val version = "1.6-snapshot"
+        val version = "1.6.1-snapshot"
         ctx.result(version)
     }
 }
