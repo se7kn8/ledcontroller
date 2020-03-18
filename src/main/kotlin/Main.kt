@@ -101,6 +101,7 @@ fun main(args: Array<String>) {
             it.result("404 Not found\nContext-Path is /control")
         }
     }.start(propertiesHandler.properties.getProperty("port").toInt())
+    Runtime.getRuntime().exec(propertiesHandler.properties.getProperty("start_command"))
 }
 
 object Global {
