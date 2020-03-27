@@ -17,6 +17,16 @@ class PigpiodBackend(properties: PropertiesHandler) : ControlBackend {
         val port = properties.properties.getProperty("pigpiod.port").toInt()
         logger.info("Connecting to pigpiod server at $ip:$port")
         socket = Socket(ip, port)
+        getVersion()
+    }
+
+    private fun getVersion() {
+        socket.getOutputStream().write(createPacket(26).array())
+        val hwVersionRes = ByteArray(16)
+        socket.getInputStream().read(hwVersionRes)
+        val hwVersionBuffer = ByteBuffer.wrap(hwVersionRes)
+        hwVersionBuffer.order(ByteOrder.LITTLE_ENDIAN)
+        logger.info("pigpiod version: {}", hwVersionBuffer.getInt(12))
     }
 
     @Synchronized
