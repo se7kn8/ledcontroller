@@ -1,16 +1,17 @@
 package implementation
 
-import PropertiesHandler
+import ConfigManager
+import com.uchuhimo.konf.Config
 import implementation.backend.ControlBackend
 import java.awt.Color
 import java.util.concurrent.Executors
 import kotlin.math.absoluteValue
 
-class ColorImplementation(properties: PropertiesHandler, private val backend: ControlBackend) {
+class ColorImplementation(config: Config, private val backend: ControlBackend) {
 
-    private val pinRed = properties.properties.getProperty("pins.red").toInt()
-    private val pinGreen = properties.properties.getProperty("pins.green").toInt()
-    private val pinBlue = properties.properties.getProperty("pins.blue").toInt()
+    private val pinRed = config[ConfigManager.ControllerSpec.LightingSpec.PinsSpec.red]
+    private val pinGreen = config[ConfigManager.ControllerSpec.LightingSpec.PinsSpec.green]
+    private val pinBlue = config[ConfigManager.ControllerSpec.LightingSpec.PinsSpec.blue]
 
     var currentColor: Color = Color.BLACK
 

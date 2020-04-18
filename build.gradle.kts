@@ -12,6 +12,7 @@ application {
 
 repositories {
     mavenCentral()
+    maven(url = "https://jitpack.io")
 }
 
 dependencies {
@@ -21,6 +22,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:2.13.0")
     implementation("org.apache.logging.log4j:log4j-api:2.13.0")
     implementation("io.javalin:javalin:3.7.0")
+    implementation("com.github.Cybermaxke:konf:feature~comments-SNAPSHOT")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

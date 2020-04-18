@@ -1,11 +1,13 @@
 package implementation.backend
 
-import PropertiesHandler
+import ConfigManager
+import com.uchuhimo.konf.Config
 import org.apache.logging.log4j.LogManager
 import java.net.Socket
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
-class PigpiodBackend(properties: PropertiesHandler) : ControlBackend {
+class PigpiodBackend(config: Config) : ControlBackend {
 
     private val logger = LogManager.getLogger()
 
@@ -13,8 +15,8 @@ class PigpiodBackend(properties: PropertiesHandler) : ControlBackend {
 
     init {
         logger.info("Using PigpiodBackend")
-        val ip = properties.properties.getProperty("pigpiod.ip")
-        val port = properties.properties.getProperty("pigpiod.port").toInt()
+        val ip = config[ConfigManager.ControllerSpec.BackendSpec.PigpiodSpec.host]
+        val port = config[ConfigManager.ControllerSpec.BackendSpec.PigpiodSpec.port]
         logger.info("Connecting to pigpiod server at $ip:$port")
         socket = Socket(ip, port)
         getVersion()

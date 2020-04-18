@@ -13,29 +13,28 @@ import java.io.*
 fun main(args: Array<String>) {
     val logger = LogManager.getLogger()
 
-    val file = File(args[0])
-    logger.info("Properties file: ${file.absoluteFile}")
 
-    val propertiesHandler = PropertiesHandler(file)
-
-    if (file.exists()) {
-        propertiesHandler.load()
+    val file = if (args.isNotEmpty()) {
+        File(args[0])
     } else {
-        propertiesHandler.saveDefault()
-        logger.warn("Program will exit. You have to edit the properties files for you needs!")
-        return
+        File("controller.toml")
     }
 
-    val backend = PigpiodBackend(propertiesHandler)
+    logger.info("Properties file: ${file.absoluteFile}")
 
-    val colorController = LightningController(ColorImplementation(propertiesHandler, backend), propertiesHandler).apply {
+    val configManager = ConfigManager(file)
+    val config = configManager.load()
+
+    val backend = PigpiodBackend(config)
+
+    val colorController = LightningController(ColorImplementation(config, backend), config).apply {
         addMode(RainbowMode())
         addMode(BlinkMode())
     }
 
     val gpioController = GPIOController(backend)
 
-    val statsController = StatsController(StatsImplementation(propertiesHandler))
+    val statsController = StatsController(StatsImplementation(config))
 
     Javalin.create {
         it.registerPlugin(RouteOverviewPlugin("routes"))
@@ -100,8 +99,12 @@ fun main(args: Array<String>) {
         if (it.resultString() == null) {
             it.result("404 Not found\nContext-Path is /control")
         }
-    }.start(propertiesHandler.properties.getProperty("port").toInt())
-    Runtime.getRuntime().exec(propertiesHandler.properties.getProperty("start_command"))
+    }.start(config[ConfigManager.ControllerSpec.ServerSpec.port])
+    /*val command = configManager.properties.getProperty("start_command")
+    if (command.trim().isNotEmpty()) {
+        Runtime.getRuntime().exec(command)
+    }*/
+    // TODO
 }
 
 object Global {

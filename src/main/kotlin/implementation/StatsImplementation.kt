@@ -1,6 +1,7 @@
 package implementation
 
-import PropertiesHandler
+import ConfigManager
+import com.uchuhimo.konf.Config
 import org.apache.logging.log4j.LogManager
 import java.io.PrintStream
 import java.lang.Exception
@@ -18,10 +19,10 @@ data class Stat(val name: String, val data: MutableList<StatPair> = ArrayList())
 
 }
 
-class StatsImplementation(properties: PropertiesHandler) {
+class StatsImplementation(config: Config) {
 
     private val logger = LogManager.getLogger()
-    private val saveDir = Paths.get(properties.properties.getProperty("stats_save_directory"))
+    private val saveDir = Paths.get(config[ConfigManager.ControllerSpec.StatsSpec.save_dir])
     private val stats: MutableSet<Stat> = HashSet()
 
     init {

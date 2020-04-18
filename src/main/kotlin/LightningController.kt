@@ -1,3 +1,4 @@
+import com.uchuhimo.konf.Config
 import implementation.ColorImplementation
 import implementation.mode.Mode
 import io.javalin.http.Context
@@ -6,9 +7,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.apache.logging.log4j.LogManager
 import java.awt.Color
+import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.concurrent.thread
 
-class LightningController(private val color: ColorImplementation, private val properties: PropertiesHandler) {
+class LightningController(private val color: ColorImplementation, private val config: Config) {
 
     private val NOP_MODE = object : Mode {
         override suspend fun start(color: ColorImplementation, multiplier: Float) {
@@ -20,7 +23,22 @@ class LightningController(private val color: ColorImplementation, private val pr
         }
     }
 
-    private var startColor = fromHex(properties.properties.getProperty("start_color"))
+    private val formatter = SimpleDateFormat("HH:mm")
+
+    private val startColor = fromHex(config[ConfigManager.ControllerSpec.LightingSpec.start_color])
+
+    private val enableTimeControl = config[ConfigManager.ControllerSpec.LightingSpec.TimeControlSpec.enable]
+
+    private val startTime = Calendar.getInstance().apply {
+        time = formatter.parse(config[ConfigManager.ControllerSpec.LightingSpec.TimeControlSpec.time_on])
+    }
+    private var startTimeNextDay = false
+
+    private val endTime = Calendar.getInstance().apply {
+        time = formatter.parse(config[ConfigManager.ControllerSpec.LightingSpec.TimeControlSpec.time_off])
+    }
+
+    private var endTimeNextDay = false
 
     private var job: Job? = null
 
@@ -33,7 +51,23 @@ class LightningController(private val color: ColorImplementation, private val pr
     private val logger = LogManager.getLogger()
 
     init {
-        color.setColor(startColor, 1000)
+        if (enableTimeControl) {
+            val timeDiff = timeDiff(startTime, false)
+            if (timeDiff > 0) {
+                thread(start = true) {
+                    Thread.sleep(timeDiff)
+                    color.setColor(startColor, 2000)
+                    timeControlLoop()
+                }
+            } else {
+                color.setColor(startColor, 2000)
+                thread(start = true) {
+                    timeControlLoop()
+                }
+            }
+        } else {
+            color.setColor(startColor, 2000)
+        }
     }
 
     fun getCurrentColor(ctx: Context) {
@@ -94,8 +128,7 @@ class LightningController(private val color: ColorImplementation, private val pr
     fun setDefaultColor(ctx: Context) {
         startColor = fromHex("#" + ctx.queryParam("color", "000000")!!.replace("#", ""))
         logger.info("Set default color to ${toHex(startColor)}")
-        properties.properties["start_color"] = toHex(startColor)
-        properties.save()
+        config[ConfigManager.ControllerSpec.LightingSpec.start_color] = toHex(startColor)
     }
 
     private fun fromHex(hexString: String): Color {
@@ -115,6 +148,39 @@ class LightningController(private val color: ColorImplementation, private val pr
             job?.cancel()
             logger.info("Stop mode")
         }
+    }
+
+    private fun timeControlLoop() {
+        while (true) {
+            val endTimeDiff = timeDiff(endTime)
+            if (endTimeDiff > 0) {
+                Thread.sleep(endTimeDiff)
+                color.setColor(Color.BLACK, 2000)
+                val startTimeDiff = timeDiff(startTime)
+                if (startTimeDiff > 0) {
+                    Thread.sleep(startTimeDiff)
+                    color.setColor(startColor, 2000)
+                } else {
+                    logger.error("Negative start time diff. Stopping time control")
+                    break
+                }
+            } else {
+                logger.error("Negative end time diff. Stopping time control")
+                break
+            }
+        }
+    }
+
+    private fun timeDiff(time: Calendar, nextDay: Boolean): Long {
+        val timestamp = Calendar.getInstance()
+        timestamp.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY))
+        timestamp.set(Calendar.MINUTE, time.get(Calendar.MINUTE))
+        timestamp.set(Calendar.SECOND, 0)
+        if (nextDay) {
+            timestamp.add(Calendar.DAY_OF_YEAR, 1)
+        }
+        println("Time: " + timestamp.time) // TODO remove this
+        return timestamp.timeInMillis - System.currentTimeMillis()
     }
 
 }
