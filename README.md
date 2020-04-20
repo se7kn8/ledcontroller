@@ -14,11 +14,11 @@ Parameters are URL query parameters. Bodies are plain-text POST bodies.
 
 | HTTP-Method | Relative path | Description | Parameter (if any) | Body (if any) |
 | ----------- | ------------- | ----------- | ------------------ | ------------- |
-| GET | /version | Returns the current version | | |
-| GET | /lighting | Returns the current color | | |
-| POST | /lighting | Sets the color| `time`  Time to use for color transition  _(Optional)_ | `#RRGGBB` |
-| GET | /lighting/default | Returns the default (startup) color | | |
-| POST | /lighting/default | Sets the default (startup) color | | `#RRGGBB` |
+| GET | /version | Returns the current version | | `X.X.X` |
+| GET | /lighting | Returns the current color | | `#RRGGBB` |
+| POST | /lighting | Sets the color| `color` The new color ; `time`  Time to use for color transition  _(Optional)_ |  |
+| GET | /lighting/default | Returns the default (startup) color | | `#RRGGBB` |
+| POST | /lighting/default | Sets the default (startup) color | `color` The new default color | |
 | POST | /lighting/reset | Resets the color to the default (startup) color | `time`  Time to use for color transition  _(Optional)_ |
 | GET | /lighting/mode | Returns the current mode | | |
 | POST | /lighting/mode | Sets the mode | `mode` The name of the mode | |
