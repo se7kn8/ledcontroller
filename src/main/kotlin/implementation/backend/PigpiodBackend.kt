@@ -4,6 +4,7 @@ import PropertiesHandler
 import org.apache.logging.log4j.LogManager
 import java.net.Socket
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 class PigpiodBackend(properties: PropertiesHandler) : ControlBackend {
 

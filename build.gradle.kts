@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.3.70"
+    id("de.clashsoft.angular-gradle") version "0.1.6"
     application
 }
 
@@ -25,4 +26,18 @@ dependencies {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+angular {
+    appDir.set("webapp")
+    buildArgs.set(listOf("build", "--prod"))
+}
+
+tasks.withType<de.clashsoft.gradle.angular.BuildAngularTask> {
+    finalizedBy("copyAngular")
+}
+
+tasks.register<Copy>("copyAngular"){
+    from("webapp/dist/lighting-control")
+    into("src/main/resources/static/lighting-control")
 }

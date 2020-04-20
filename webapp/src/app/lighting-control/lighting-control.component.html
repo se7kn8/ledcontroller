@@ -1,0 +1,25 @@
+<p>Red: {{redValue}}</p>
+<p>Green: {{greenValue}}</p>
+<p>Blue: {{blueValue}}</p>
+<mat-card>
+  <mat-card-title>Color</mat-card-title>
+  <mat-card-subtitle>Change the color of the led strip</mat-card-subtitle>
+
+  <div id="color-view" [ngStyle]="{'background': 'rgb(' + redValue +',' + greenValue+',' + blueValue+')'}"></div>
+
+  <mat-list>
+    <mat-list-item>
+      <mat-slider min="0" max="255" step="1" [value]="redValue" (input)="onRedChange($event)"></mat-slider>
+      <mat-slider min="0" max="255" step="1" [value]="greenValue" (input)="onGreenChange($event)"></mat-slider>
+      <mat-slider min="0" max="255" step="1" [value]="blueValue" (input)="onBlueChange($event)"></mat-slider>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-slider id="time-slider" tickInterval="1000" min="0" max="10000" step="1" [(value)]="time"></mat-slider>
+    </mat-list-item>
+    <mat-list-item>
+      <button mat-raised-button color="primary" (click)="onSend()">Send</button>
+      <button mat-raised-button color="primary" (click)="onReset()">Reset</button>
+    </mat-list-item>
+  </mat-list>
+
+</mat-card>
