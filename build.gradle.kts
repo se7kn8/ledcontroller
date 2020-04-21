@@ -38,6 +38,11 @@ tasks.withType<de.clashsoft.gradle.angular.BuildAngularTask> {
 }
 
 tasks.register<Copy>("copyAngular"){
+    dependsOn("clearAngularOutput")
     from("webapp/dist/lighting-control")
     into("src/main/resources/static/lighting-control")
+}
+
+tasks.register<Delete>("clearAngularOutput"){
+    delete("src/main/resources/static/lighting-control")
 }
