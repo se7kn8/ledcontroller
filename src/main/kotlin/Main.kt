@@ -41,7 +41,7 @@ fun main(args: Array<String>) {
         it.logIfServerNotStarted = false
         it.showJavalinBanner = false
         it.enableCorsForAllOrigins()
-        it.addSinglePageRoot("/","static/lighting-control/index.html")
+        it.addSinglePageRoot("/", "static/lighting-control/index.html")
         it.addStaticFiles("static/lighting-control/")
         it.registerPlugin(RouteOverviewPlugin("control/routes"))
     }.routes {
@@ -100,6 +100,8 @@ fun main(args: Array<String>) {
             }
             get(Global::getInfo)
         }
+    }.before {
+        logger.debug("HTTP Request to: ${it.req.pathInfo}")
     }.error(404) {
         if (it.resultString() == null) {
             it.result("404 Not found\nContext-Path is /control")

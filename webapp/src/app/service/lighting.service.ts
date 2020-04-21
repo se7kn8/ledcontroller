@@ -1,35 +1,36 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Color } from '../entities/color';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators'
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Color} from '../entities/color';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators'
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class LightingService {
 
-  private serverUrl = 'http://localhost:8080/control'
+  private serverUrl: string = environment.serverUrl;
 
-  constructor(private http: HttpClient) { }
-
-  //ledcontroller:8080/control/lighting?color=000000&time=500
+  constructor(private http: HttpClient) {
+    console.log(`Backend at ${this.serverUrl}`)
+  }
 
   public resetColor() {
-    this.http.post(`${this.serverUrl}/lighting/reset`, "", { responseType: 'text' as 'json' }).subscribe();
+    this.http.post(`${this.serverUrl}/lighting/reset`, "", {responseType: 'text' as 'json'}).subscribe();
   }
 
   public setColor(color: Color, time: number) {
     let hexColor = this.rgbToHex(color.r, color.g, color.b);
-    if(time != 0){
+    if (time != 0) {
       this.http.post(`${this.serverUrl}/lighting?color=${hexColor}&time=${time}`, "").subscribe();
-    }else {
+    } else {
       this.http.post(`${this.serverUrl}/lighting?color=${hexColor}`, "").subscribe();
     }
   }
 
   public getCurrentColor(): Observable<Color> {
-    return this.http.get(`${this.serverUrl}/lighting`, { responseType: 'text' as 'json' }).pipe(map((response: string) => {
+    return this.http.get(`${this.serverUrl}/lighting`, {responseType: 'text' as 'json'}).pipe(map((response: string) => {
 
       let color: Color = {
         r: parseInt(response.substring(1, 3), 16),
@@ -43,7 +44,6 @@ export class LightingService {
   private rgbToHex(red: number, green: number, blue: number): string {
     return ((1 << 24) + (red << 16) + (green << 8) + blue).toString(16).slice(1);
   }
-
 
 
 }

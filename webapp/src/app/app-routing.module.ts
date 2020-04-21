@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { PageNotFoundComponent } from './error/page-not-found/page-not-found.component';
 import { LightingControlComponent } from './lighting-control/lighting-control.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {environment} from "../environments/environment";
 
 
 const routes: Routes = [
@@ -12,7 +13,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, {enableTracing: true})],
+  imports: [RouterModule.forRoot(routes, {enableTracing: !environment.production})],
   exports: [RouterModule, BrowserAnimationsModule]
 })
 export class AppRoutingModule { }
