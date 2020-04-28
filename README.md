@@ -29,5 +29,5 @@ Parameters are URL query parameters. Bodies are plain-text POST bodies.
 | POST | /stats/delete | Removes a statistic from tracking | `name` Name of the stat to delete | |
 | GET | /stats/get/latest | Returns the latest value from the stat | `name` Name of the stat | |
 | GET | /stats/get/all | Returns all values from the stat | `name` Name of the stat, `max` Max values to return _(Optional)_ | |
-| POST | /stats/update | Update a stat with a new value. If the stats does not exist it will be created | `name` Name of the stat | `Value` |
+| POST | /stats/update | Update a stat with a new value. If the stats does not exist it will be created | `name` Name of the stat, `value` Value to be add. Can be integer or floating point number. | |
 | GET | /stats/list | Lists all stats | | |
